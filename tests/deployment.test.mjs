@@ -3,9 +3,24 @@ import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { migrationConnection } from "../scripts/migration-connection.mjs";
 
 const dist = new URL("../dist/", import.meta.url);
 const packaged = new URL("../.vercel/output/", import.meta.url);
+
+test("migration credentials preserve URL-special characters in a Session pooler URI", () => {
+  const password = "test-only:@/#?% $&+";
+  const parsed = new URL(migrationConnection({
+    SUPABASE_PROJECT_REF: "fksudtaskmbjiblgismp",
+    SUPABASE_DB_HOST: "aws-0-us-east-1.pooler.supabase.com",
+    SUPABASE_DB_PASSWORD: password,
+  }));
+  assert.equal(decodeURIComponent(parsed.password), password);
+  assert.equal(parsed.username, "postgres.fksudtaskmbjiblgismp");
+  assert.equal(parsed.hostname, "aws-0-us-east-1.pooler.supabase.com");
+  assert.equal(parsed.port, "5432");
+  assert.equal(parsed.searchParams.get("sslmode"), "require");
+});
 
 test("enabled backend rejects missing settings and privileged browser keys", () => {
   const script = fileURLToPath(
