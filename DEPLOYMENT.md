@@ -107,8 +107,9 @@ For an unconfigured installation, `VITE_ENABLE_SUPABASE` defaults to `false`: th
 | `VITE_SUPABASE_URL`             | `https://<new-project-ref>.supabase.co`                              |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Browser publishable key, or legacy `anon` key                        |
 | `SUPABASE_PROJECT_REF`          | New project reference; must match the URL                            |
+| `SUPABASE_DB_HOST` | Session pooler hostname from Supabase Connect; this project uses `aws-0-us-east-1.pooler.supabase.com` |
 
-Add **production environment secrets** `SUPABASE_ACCESS_TOKEN` and `SUPABASE_DB_PASSWORD`. The token must have access to the new project. The workflow applies all pending SQL migrations, including the owner-only profile SELECT policy, before deploying the enabled frontend. Do not run a production database reset.
+Add **production environment secrets** `SUPABASE_ACCESS_TOKEN` and `SUPABASE_DB_PASSWORD`. The token must have access to the new project. The workflow applies all pending SQL migrations, including the owner-only profile SELECT policy, before deploying the enabled frontend. GitHub's IPv4-only runner connects through the Session pooler on port 5432 using the `postgres.<project-ref>` database user. The password comes from GitHub Secrets and is passed separately, never embedded in a committed connection URL. Do not run a production database reset.
 
 Because GitHub Actions builds the frontend, set these build variables in **GitHub**, not only the Vercel dashboard. Variables in `.env.local` affect local development only. No Supabase credentials are required for the disabled catalogue demo.
 

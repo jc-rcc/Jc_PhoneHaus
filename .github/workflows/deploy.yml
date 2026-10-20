@@ -71,6 +71,7 @@ jobs:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+      SUPABASE_DB_HOST: ${{ vars.SUPABASE_DB_HOST }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -99,16 +100,20 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
         run: |
-          for variable in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD SUPABASE_PROJECT_REF; do
+          for variable in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD SUPABASE_PROJECT_REF SUPABASE_DB_HOST; do
             if [ -z "${!variable}" ]; then
               echo "::error::Missing Supabase configuration: $variable. See DEPLOYMENT.md."
               exit 1
             fi
           done
           node --input-type=module -e 'if (new URL(process.env.VITE_SUPABASE_URL).hostname !== process.env.SUPABASE_PROJECT_REF + ".supabase.co") throw new Error("Supabase URL and project reference must match");'
+          node --input-type=module -e 'if (!/^[a-z0-9-]+\.pooler\.supabase\.com$/.test(process.env.SUPABASE_DB_HOST)) throw new Error("Expected the Session pooler hostname from Supabase Connect");'
           npx --yes supabase@2.121.0 link --project-ref "$SUPABASE_PROJECT_REF"
-          # Resolve the remote connection explicitly, including the IPv4 pooler.
-          npx --yes supabase@2.121.0 db push --project-ref "$SUPABASE_PROJECT_REF" --yes
+          # Session mode on port 5432 works on the IPv4-only hosted runner.
+          # Keep the password out of the connection URL and generated files.
+          export PGPASSWORD="$SUPABASE_DB_PASSWORD"
+          database_url="postgresql://postgres.${SUPABASE_PROJECT_REF}@${SUPABASE_DB_HOST}:5432/postgres?sslmode=require"
+          npx --yes supabase@2.121.0 db push --db-url "$database_url" --password "$SUPABASE_DB_PASSWORD" --yes
       - name: Verify Supabase API and anonymous read restrictions
         if: vars.VITE_ENABLE_SUPABASE == 'true'
         env:
