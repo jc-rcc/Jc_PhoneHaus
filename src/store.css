@@ -881,6 +881,95 @@ select {
   color: #707277;
   margin-block: 25px;
 }
+.founder-section {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.25fr);
+  gap: 68px;
+  align-items: center;
+  margin-block: 58px 48px;
+  padding-block: 36px 46px;
+  border-block: 1px solid #e1e1dd;
+}
+.founder-card {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #e1e1dd;
+  border-radius: 14px;
+  background: #fff;
+}
+.founder-photo {
+  position: relative;
+  background: #f1f0e6;
+}
+.founder-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  object-position: center 30%;
+}
+.founder-label {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  padding: 8px 11px;
+  border-radius: 4px;
+  background: #d3f36b;
+  color: #191c23;
+  font-size: 8px;
+  letter-spacing: 1.3px;
+  font-weight: 700;
+}
+.founder-card figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 24px;
+}
+.founder-card figcaption strong {
+  display: block;
+  font-size: 25px;
+  font-weight: 650;
+  letter-spacing: -0.7px;
+}
+.founder-card figcaption div > span {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #707277;
+}
+.founder-signature {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.8px;
+}
+.founder-story h2 {
+  margin-block: 14px 24px;
+  font-size: clamp(29px, 3vw, 39px);
+  line-height: 1.15;
+  font-weight: 600;
+  letter-spacing: -1.5px;
+}
+.founder-story > p {
+  margin-block: 16px;
+  font-size: 13px;
+  line-height: 1.95;
+  color: #707277;
+}
+.founder-mission {
+  margin-top: 27px;
+  padding-left: 20px;
+  border-left: 3px solid #b3d64e;
+}
+.founder-mission p {
+  margin-top: 9px;
+  font-size: 17px;
+  line-height: 1.6;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+}
 .about-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1084,6 +1173,16 @@ select {
   }
 }
 @media (max-width: 900px) {
+  .founder-section {
+    gap: 30px;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+  .founder-card figcaption {
+    padding: 18px;
+  }
+  .founder-signature {
+    display: none;
+  }
   .store-shell {
     width: calc(100% - 44px);
   }
@@ -1237,6 +1336,26 @@ select {
   }
 }
 @media (max-width: 640px) {
+  .founder-section {
+    grid-template-columns: 1fr;
+    margin-block: 35px 30px;
+    padding-block: 28px;
+    gap: 30px;
+  }
+  .founder-card {
+    width: 100%;
+    max-width: 410px;
+    margin-inline: auto;
+  }
+  .founder-signature {
+    display: inline;
+  }
+  .founder-story h2 {
+    font-size: 30px;
+  }
+  .founder-story > p {
+    font-size: 12px;
+  }
   .store-shell {
     width: calc(100% - 32px);
   }
