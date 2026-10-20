@@ -4,7 +4,7 @@
 
 | Deliverable                             | Location / status                                                                                                                                                 |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Live application URL                    | **Pending the first successful GitHub Actions deployment.** No Vercel project exists yet.                                                                         |
+| Live application URL                    | [https://jc-phonehaus.vercel.app](https://jc-phonehaus.vercel.app) — public frontend and static assets verified.                                                                         |
 | Repository                              | [jc-rcc/Jc_PhoneHaus](https://github.com/jc-rcc/Jc_PhoneHaus) — Phonehaus source and deployment configuration are maintained on `main`. |
 | CI/CD configuration                     | [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)                                                                                                    |
 | Repository workflow link for submission | [GitHub workflow file](https://github.com/jc-rcc/Jc_PhoneHaus/blob/main/.github/workflows/deploy.yml)            |
@@ -12,7 +12,7 @@
 
 Repository files: [workflow](https://github.com/jc-rcc/Jc_PhoneHaus/blob/main/.github/workflows/deploy.yml) and [architecture document](https://github.com/jc-rcc/Jc_PhoneHaus/blob/main/DEPLOYMENT.md).
 
-After the workflow succeeds, replace the pending live URL with the verified production domain from Vercel. Keep the successful Actions run as deployment evidence. Do not submit a localhost URL or an invented `vercel.app` address.
+The initial Vercel deployment is publicly accessible. [GitHub CI passed](https://github.com/jc-rcc/Jc_PhoneHaus/actions/runs/39487086902), but GitHub Actions CD is not enabled yet: repository Actions variables and secrets are currently empty. Configure the deployment settings below and confirm a successful Actions production deployment before claiming end-to-end CI/CD. The Supabase integration has been provisioned through Vercel; application configuration, migrations, and authenticated behavior still need verification.
 
 ## 1. Architecture and chosen infrastructure
 
@@ -75,15 +75,15 @@ The package sets security response headers and immutable caching for Vite's hash
 
 ### Vercel
 
-Use an account you control. The following commands provision and link an empty project; they do **not** upload or deploy the application:
+The Vercel project `jc-phone-haus` already exists under the `jcs-projects-03dd9d3c` account/team. Link it locally to obtain its IDs; these commands do **not** upload or deploy the application:
 
 ```sh
 npx --yes vercel@64.7.0 login
 npx --yes vercel@64.7.0 project add phonehaus
-npx --yes vercel@64.7.0 link --project phonehaus
+npx --yes vercel@64.7.0 link --project jc-phone-haus --scope jcs-projects-03dd9d3c
 ```
 
-If the project name is unavailable, use another name consistently. Select the same account/team for creation and linking. `.vercel/project.json` contains `orgId` and `projectId`; it is ignored by Git. Generate a Vercel access token for that account/team and add these **GitHub Actions secrets**, preferably in the `production` environment:
+Select the existing project and the same account/team when linking. Do not create a duplicate project. `.vercel/project.json` contains `orgId` and `projectId`; it is ignored by Git. Generate a Vercel access token for that account/team and add these **GitHub Actions secrets**, preferably in the `production` environment:
 
 | Secret              | Value                                                      |
 | ------------------- | ---------------------------------------------------------- |
@@ -97,7 +97,7 @@ Keep production publicly accessible for the grader. The live smoke check deliber
 
 ### New Supabase project
 
-Create a new project in an account you control. Select a region close to the expected users, keep its database password in a password manager, and configure authentication Site URL and allowed redirect URLs to the actual Vercel production origin after the first deployment.
+A new Supabase integration was created through Vercel. Open that project's Supabase dashboard to obtain its project reference, URL, and browser publishable key. Keep its database password in a password manager. Configure the authentication Site URL and allowed redirect URL to `https://jc-phonehaus.vercel.app/`. Provisioning an integration alone does not apply this repository's migrations or enable the application's accounts.
 
 Initially, `VITE_ENABLE_SUPABASE` defaults to `false`: the catalogue and browser-saved bag work, while account/order screens clearly say they are unavailable. This is **not** a completed database-backed deployment. To enable accounts and demo orders, add these **GitHub repository Actions variables**:
 
@@ -128,4 +128,4 @@ Use free plans for grading where eligible. Check usage dashboards and enable ava
 
 ## Local validation
 
-Node.js 22: production build, application/configuration typechecks, workflow YAML parsing, and all four deployment tests passed. ESLint passed with eight pre-existing warnings and no errors. The tests also verify rejection of missing backend settings and privileged keys in the browser configuration. GitHub-hosted CI passed on the previous repository before migration to this repository. Public HTTPS checks and remote Supabase migrations remain unverified until the accounts and credentials are configured.
+Node.js 22: production build, application/configuration typechecks, workflow YAML parsing, and all four deployment tests passed. ESLint passed with eight pre-existing warnings and no errors. The tests also verify rejection of missing backend settings and privileged keys in the browser configuration. GitHub-hosted CI passed on this repository in run `39487086902`. On 21 October 2026, the live HTTPS entry point, compiled JavaScript/CSS, and sample product illustrations also passed `scripts/check-live.mjs`. GitHub Actions deployment and remote Supabase migrations remain unverified until the deployment settings are configured; the application is still a catalogue demo until the new backend is enabled.
