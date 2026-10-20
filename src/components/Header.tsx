@@ -7,8 +7,16 @@ import {
   X,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CartFunctions } from "@/contexts/CartContext";
+import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 interface HeaderProps {
   cart: CartFunctions;
@@ -18,7 +26,34 @@ interface HeaderProps {
 export const Header = ({ cart, onSearch }: HeaderProps) => {
   const [query, setQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
   const navigate = useNavigate();
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    let active = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (active) setSignedIn(Boolean(data.session));
+    });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) setSignedIn(Boolean(session));
+    });
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+  const signOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Could not sign out. Please try again.");
+      return;
+    }
+    setMenuOpen(false);
+    navigate("/");
+    toast.success("You have signed out.");
+  };
   const search = (event: React.FormEvent) => {
     event.preventDefault();
     if (!onSearch) navigate(`/shop?q=${encodeURIComponent(query)}`);
@@ -59,13 +94,34 @@ export const Header = ({ cart, onSearch }: HeaderProps) => {
                 }}
               />
             </form>
-            <Link
-              className="icon-button account-link"
-              to="/auth"
-              aria-label="Your account"
-            >
-              <UserRound size={21} />
-            </Link>
+            {signedIn ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="icon-button" aria-label="Account menu">
+                    <UserRound size={21} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile">My profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/orders">My orders</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={signOut}>
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link
+                className="icon-button account-link"
+                to="/auth"
+                aria-label="Your account"
+              >
+                <UserRound size={21} />
+              </Link>
+            )}
             <Link
               to="/cart"
               className="icon-button bag-link"
@@ -97,7 +153,17 @@ export const Header = ({ cart, onSearch }: HeaderProps) => {
                 {brand === "All" ? "All phones" : brand}
               </Link>
             ))}
-            <Link to="/auth">Your account</Link>
+            <Link
+              onClick={() => setMenuOpen(false)}
+              to={signedIn ? "/profile" : "/auth"}
+            >
+              Your account
+            </Link>
+            {signedIn && (
+              <Link onClick={() => setMenuOpen(false)} to="/orders">
+                My orders
+              </Link>
+            )}
             <Link to="/about">About Phonehaus</Link>
           </nav>
         )}

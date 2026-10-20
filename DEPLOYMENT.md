@@ -2,17 +2,17 @@
 
 ## Submission status
 
-| Deliverable                             | Location / status                                                                                                                                                 |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Live application URL                    | [https://jc-phonehaus.vercel.app](https://jc-phonehaus.vercel.app) — public frontend and static assets verified.                                                                         |
+| Deliverable                             | Location / status                                                                                                                       |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Live application URL                    | [https://jc-phonehaus.vercel.app](https://jc-phonehaus.vercel.app) — public frontend and static assets verified.                        |
 | Repository                              | [jc-rcc/Jc_PhoneHaus](https://github.com/jc-rcc/Jc_PhoneHaus) — Phonehaus source and deployment configuration are maintained on `main`. |
-| CI/CD configuration                     | [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)                                                                                                    |
-| Repository workflow link for submission | [GitHub workflow file](https://github.com/jc-rcc/Jc_PhoneHaus/blob/main/.github/workflows/deploy.yml)            |
-| Architecture justification              | This document, `DEPLOYMENT.md`                                                                                                                                    |
+| CI/CD configuration                     | [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)                                                                          |
+| Repository workflow link for submission | [GitHub workflow file](https://github.com/jc-rcc/Jc_PhoneHaus/blob/main/.github/workflows/deploy.yml)                                   |
+| Architecture justification              | This document, `DEPLOYMENT.md`                                                                                                          |
 
 Repository files: [workflow](https://github.com/jc-rcc/Jc_PhoneHaus/blob/main/.github/workflows/deploy.yml) and [architecture document](https://github.com/jc-rcc/Jc_PhoneHaus/blob/main/DEPLOYMENT.md).
 
-The Vercel frontend is publicly accessible. The three required Vercel GitHub Secrets are configured and the repository Actions variable `VERCEL_DEPLOY_ENABLED=true` is enabled. Pushes and merges to `main` now run the full CI/CD workflow. See [GitHub Actions release results](https://github.com/jc-rcc/Jc_PhoneHaus/actions/workflows/deploy.yml) for deployment evidence; a green verification job alone does not establish a successful production deployment. The Supabase integration has been provisioned through Vercel; application configuration, migrations, and authenticated behavior still need verification.
+The Vercel frontend is publicly accessible. The three required Vercel GitHub Secrets are configured and the repository Actions variable `VERCEL_DEPLOY_ENABLED=true` is enabled. Pushes and merges to `main` now run the full CI/CD workflow. See [GitHub Actions release results](https://github.com/jc-rcc/Jc_PhoneHaus/actions/workflows/deploy.yml) for deployment evidence; a green verification job alone does not establish a successful production deployment. The new Supabase project is `fksudtaskmbjiblgismp`, provisioned through Vercel. Its public frontend settings and migration secrets are configured in GitHub, and `VITE_ENABLE_SUPABASE=true` is enabled. Release jobs apply pending migrations and verify the backend before deploying. Email redirects and signed-in account/order behavior still require browser verification.
 
 ## 1. Architecture and chosen infrastructure
 
@@ -63,7 +63,7 @@ The workflow is `.github/workflows/deploy.yml`. It runs automatically for pull r
 3. **Build:** Validate frontend environment settings, then run Vite's production build. Pull requests use the offline catalogue; `main` uses the repository's configured public frontend variables.
 4. **Package and test:** Copy `dist/` into `.vercel/output/static`, add Build Output API v3 configuration, and run Node tests. Tests verify compiled entry assets, all eight catalogue illustrations, and byte-for-byte agreement between the build and deployment package.
 5. **Artifact handoff:** Store the verified package as a commit-specific GitHub artifact. The deployment job depends on successful verification and runs only for a push to `main` when the repository variable `VERCEL_DEPLOY_ENABLED=true` is set.
-6. **Database:** When Supabase is explicitly enabled, validate that its URL and project reference match, then apply pending migrations with the pinned Supabase CLI. Missing credentials or failed migrations stop the frontend deployment. Migration privileges are only available to the deployment job.
+6. **Database:** When Supabase is explicitly enabled, validate that its URL and project reference match, then apply pending migrations with the pinned Supabase CLI. Missing credentials or failed migrations stop the frontend deployment. An additional API check verifies email authentication, the migrated tables, and that anonymous reads return no private rows. Migration privileges are only available to the deployment job.
 7. **CD:** Deploy the downloaded artifact with the pinned Vercel CLI using `--prebuilt --prod`. `vercel.json` disables Vercel's parallel Git deployment path so the Actions checks remain the release gate. The application is not rebuilt during deployment.
 8. **Verification:** Record the returned deployment URL in the Actions summary, then check public HTTPS access, the Phonehaus document, compiled JavaScript/CSS, and sample phone illustrations. A failed check marks the run failed; it does not automatically undo a published release.
 
@@ -99,7 +99,7 @@ Set the **repository Actions variable** `PRODUCTION_URL` to `https://jc-phonehau
 
 A new Supabase integration was created through Vercel. Open that project's Supabase dashboard to obtain its project reference, URL, and browser publishable key. Keep its database password in a password manager. Configure the authentication Site URL and allowed redirect URL to `https://jc-phonehaus.vercel.app/`. Provisioning an integration alone does not apply this repository's migrations or enable the application's accounts.
 
-Initially, `VITE_ENABLE_SUPABASE` defaults to `false`: the catalogue and browser-saved bag work, while account/order screens clearly say they are unavailable. This is **not** a completed database-backed deployment. To enable accounts and demo orders, add these **GitHub repository Actions variables**:
+For an unconfigured installation, `VITE_ENABLE_SUPABASE` defaults to `false`: the catalogue and browser-saved bag work, while account/order screens clearly say they are unavailable. This deployment now has the backend explicitly enabled with the new project's settings. To enable accounts and demo orders, add these **GitHub repository Actions variables**:
 
 | Variable                        | Value                                                                |
 | ------------------------------- | -------------------------------------------------------------------- |
@@ -128,4 +128,4 @@ Use free plans for grading where eligible. Check usage dashboards and enable ava
 
 ## Local validation
 
-Node.js 22: production build, application/configuration typechecks, workflow YAML parsing, and all four deployment tests passed. ESLint passed with eight pre-existing warnings and no errors. The tests also verify rejection of missing backend settings and privileged keys in the browser configuration. GitHub-hosted CI passed on this repository in run `39487086902`. On 21 October 2026, the live HTTPS entry point, compiled JavaScript/CSS, and sample product illustrations also passed `scripts/check-live.mjs`. Automated Vercel deployment is enabled; its verification results are recorded in GitHub Actions. Remote Supabase migrations and authenticated flows remain unverified until the backend settings are configured. The application is still a catalogue demo until the new backend is enabled.
+Node.js 22: production build, application/configuration typechecks, workflow YAML parsing, and all four deployment tests passed. ESLint passed with eight pre-existing warnings and no errors. The tests also verify rejection of missing backend settings and privileged keys in the browser configuration. GitHub-hosted CI passed on this repository in run `39487086902`. On 21 October 2026, the live HTTPS entry point, compiled JavaScript/CSS, and sample product illustrations also passed `scripts/check-live.mjs`. Automated Vercel deployment is enabled; its verification results are recorded in GitHub Actions. Backend migration and API verification results are recorded in the deployment job. Signed-in browser tests, including confirmation-email redirects and cross-user isolation, remain separate from the automated anonymous API checks.

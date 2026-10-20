@@ -30,7 +30,7 @@ npm run test:deployment
 - Shared product catalogue with individual detail pages.
 - Shopping bag with quantity controls and browser storage.
 - About page and a local-only contact message preview.
-- Clear account and checkout placeholders while the new backend is being set up.
+- Signup/login, profile, order history, and demo ordering when the configured Supabase backend is enabled; clear placeholders when it is disabled.
 
 Prices in PHP, inventory, and product illustrations are demonstration content. No payments are processed. Phonehaus is independent of the brands displayed.
 
@@ -48,4 +48,4 @@ The legacy order flow is a course demo: it accepts client-supplied prices, does 
 
 GitHub Actions CI/CD is configured in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). Pull requests run lint, TypeScript, production build, and deployment tests. Successful pushes to `main` deploy the tested artifact to Vercel once the required secrets are configured and the repository Actions variable `VERCEL_DEPLOY_ENABLED=true` is set.
 
-See [`DEPLOYMENT.md`](DEPLOYMENT.md) for architecture, platform trade-offs, account setup, environment settings, verification, and submission links. Live frontend: [jc-phonehaus.vercel.app](https://jc-phonehaus.vercel.app). GitHub CI has passed. Vercel and its Supabase integration have been created; GitHub Actions CD is now enabled with the required Vercel secrets and deployment switch. Database migrations and account/order verification are still pending.
+See [`DEPLOYMENT.md`](DEPLOYMENT.md) for architecture, platform trade-offs, account setup, environment settings, verification, and submission links. Live frontend: [jc-phonehaus.vercel.app](https://jc-phonehaus.vercel.app). GitHub CI has passed. Vercel and its Supabase integration have been created; GitHub Actions CD is now enabled with the required Vercel secrets and deployment switch. The new Supabase backend is enabled in GitHub; release jobs apply migrations and verify API access before deploying. Email redirect and signed-in flow testing remain necessary.

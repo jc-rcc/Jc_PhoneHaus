@@ -108,6 +108,12 @@ jobs:
           node --input-type=module -e 'if (new URL(process.env.VITE_SUPABASE_URL).hostname !== process.env.SUPABASE_PROJECT_REF + ".supabase.co") throw new Error("Supabase URL and project reference must match");'
           npx --yes supabase@2.121.0 link --project-ref "$SUPABASE_PROJECT_REF"
           npx --yes supabase@2.121.0 db push --linked --yes
+      - name: Verify Supabase API and anonymous read restrictions
+        if: vars.VITE_ENABLE_SUPABASE == 'true'
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: node scripts/check-backend.mjs
       - name: Deploy the tested artifact
         id: publish
         shell: bash

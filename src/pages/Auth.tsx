@@ -1,16 +1,29 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -50,14 +63,18 @@ const Auth = () => {
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (session) {
         navigate("/");
       }
     };
     checkUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         navigate("/");
       }
@@ -108,7 +125,7 @@ const Auth = () => {
   const onSignup = async (data: SignupFormData) => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
@@ -123,7 +140,8 @@ const Auth = () => {
         if (error.message.includes("already registered")) {
           toast({
             title: "Sign up failed",
-            description: "This email is already registered. Please try logging in instead.",
+            description:
+              "This email is already registered. Please try logging in instead.",
             variant: "destructive",
           });
         } else {
@@ -135,8 +153,10 @@ const Auth = () => {
         }
       } else {
         toast({
-          title: "Account created!",
-          description: "You can now log in with your credentials.",
+          title: authData.session ? "Account created!" : "Check your email",
+          description: authData.session
+            ? "You are now signed in."
+            : "Open the confirmation link in your email before signing in.",
         });
       }
     } catch (error) {
@@ -154,10 +174,15 @@ const Auth = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">Welcome to Phonehaus</CardTitle>
+          <CardTitle className="text-2xl text-center">
+            Welcome to Phonehaus
+          </CardTitle>
           <CardDescription className="text-center">
             Sign in to your account or create a new one
           </CardDescription>
+          <Link to="/" className="text-center text-sm underline">
+            Back to Phonehaus
+          </Link>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
@@ -168,7 +193,10 @@ const Auth = () => {
 
             <TabsContent value="login">
               <Form {...loginForm}>
-                <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
+                <form
+                  onSubmit={loginForm.handleSubmit(onLogin)}
+                  className="space-y-4"
+                >
                   <FormField
                     control={loginForm.control}
                     name="email"
@@ -176,7 +204,11 @@ const Auth = () => {
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="you@example.com" {...field} />
+                          <Input
+                            type="email"
+                            placeholder="you@example.com"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -189,7 +221,11 @@ const Auth = () => {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
+                          <Input
+                            type="password"
+                            placeholder="••••••••"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -204,7 +240,10 @@ const Auth = () => {
 
             <TabsContent value="signup">
               <Form {...signupForm}>
-                <form onSubmit={signupForm.handleSubmit(onSignup)} className="space-y-4">
+                <form
+                  onSubmit={signupForm.handleSubmit(onSignup)}
+                  className="space-y-4"
+                >
                   <FormField
                     control={signupForm.control}
                     name="fullName"
@@ -225,7 +264,11 @@ const Auth = () => {
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input type="email" placeholder="you@example.com" {...field} />
+                          <Input
+                            type="email"
+                            placeholder="you@example.com"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -238,7 +281,11 @@ const Auth = () => {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
+                          <Input
+                            type="password"
+                            placeholder="••••••••"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
