@@ -19,8 +19,8 @@ async function get(path) {
 const response = await get("/");
 assert.match(response.headers.get("content-type") || "", /text\/html/);
 const html = await response.text();
-assert.match(html, /Phonehaus/);
-assert.match(html, /<div id="root"><\/div>/);
+assert.ok(html.includes("Phonehaus"), "The checked URL did not return the Phonehaus site; verify the public production domain.");
+assert.ok(/<div id="root"><\/div>/.test(html), "Missing application root in the public HTML.");
 const assets = [...html.matchAll(/(?:src|href)="(\/assets\/[^"?#]+)"/g)].map(
   (match) => match[1],
 );

@@ -62,7 +62,7 @@ jobs:
     timeout-minutes: 15
     environment:
       name: production
-      url: ${{ steps.publish.outputs.url }}
+      url: ${{ vars.PRODUCTION_URL || steps.publish.outputs.url }}
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -123,5 +123,6 @@ jobs:
           echo "Commit: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
       - name: Verify public HTTPS entry point and assets
         env:
-          DEPLOYMENT_URL: ${{ steps.publish.outputs.url }}
+          # Vercel may protect unique deployment URLs while the production domain is public.
+          DEPLOYMENT_URL: ${{ vars.PRODUCTION_URL || steps.publish.outputs.url }}
         run: node scripts/check-live.mjs

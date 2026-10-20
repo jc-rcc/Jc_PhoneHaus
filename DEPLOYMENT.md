@@ -93,7 +93,7 @@ Select the existing project and the same account/team when linking. Do not creat
 
 After adding the three Vercel secrets, set the **repository Actions variable** `VERCEL_DEPLOY_ENABLED` to `true`. This is a one-time setup switch: subsequent merges and pushes to `main` deploy automatically. Until then, CI runs and deployment is skipped. Changing a variable alone does not start a run; push the next commit after configuring it.
 
-Keep production publicly accessible for the grader. The live smoke check deliberately does not use an authentication bypass token. Never commit tokens or the linking file.
+Set the **repository Actions variable** `PRODUCTION_URL` to `https://jc-phonehaus.vercel.app`. Vercel may protect unique deployment URLs even when this production domain is public; the smoke check and GitHub environment link use `PRODUCTION_URL` when configured. Keep production publicly accessible for the grader. The live smoke check deliberately does not use an authentication bypass token. Never commit tokens or the linking file.
 
 ### New Supabase project
 
