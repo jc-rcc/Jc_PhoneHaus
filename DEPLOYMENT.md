@@ -5,12 +5,12 @@
 | Deliverable                             | Location / status                                                                                                                                                 |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Live application URL                    | **Pending the first successful GitHub Actions deployment.** No Vercel project exists yet.                                                                         |
-| Repository                              | [VincentThis/GreenShop](https://github.com/VincentThis/GreenShop) — Phonehaus redesign and deployment setup are prepared on the `codex/phonehaus-deployment` review branch. |
+| Repository                              | [jc-rcc/Jc_PhoneHaus](https://github.com/jc-rcc/Jc_PhoneHaus) — Phonehaus source and deployment configuration are maintained on `main`. |
 | CI/CD configuration                     | [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)                                                                                                    |
-| Repository workflow link for submission | [GitHub workflow file](https://github.com/VincentThis/GreenShop/blob/main/.github/workflows/deploy.yml) — available after pushing this file to `main`.            |
+| Repository workflow link for submission | [GitHub workflow file](https://github.com/jc-rcc/Jc_PhoneHaus/blob/main/.github/workflows/deploy.yml)            |
 | Architecture justification              | This document, `DEPLOYMENT.md`                                                                                                                                    |
 
-Review-branch files: [workflow](https://github.com/VincentThis/GreenShop/blob/codex/phonehaus-deployment/.github/workflows/deploy.yml) and [architecture document](https://github.com/VincentThis/GreenShop/blob/codex/phonehaus-deployment/DEPLOYMENT.md).
+Repository files: [workflow](https://github.com/jc-rcc/Jc_PhoneHaus/blob/main/.github/workflows/deploy.yml) and [architecture document](https://github.com/jc-rcc/Jc_PhoneHaus/blob/main/DEPLOYMENT.md).
 
 After the workflow succeeds, replace the pending live URL with the verified production domain from Vercel. Keep the successful Actions run as deployment evidence. Do not submit a localhost URL or an invented `vercel.app` address.
 
@@ -62,7 +62,7 @@ The workflow is `.github/workflows/deploy.yml`. It runs automatically for pull r
 2. **CI checks:** Run ESLint and TypeScript checks for both the application and Vite configuration. Lint errors stop deployment; existing warnings remain visible.
 3. **Build:** Validate frontend environment settings, then run Vite's production build. Pull requests use the offline catalogue; `main` uses the repository's configured public frontend variables.
 4. **Package and test:** Copy `dist/` into `.vercel/output/static`, add Build Output API v3 configuration, and run Node tests. Tests verify compiled entry assets, all eight catalogue illustrations, and byte-for-byte agreement between the build and deployment package.
-5. **Artifact handoff:** Store the verified package as a commit-specific GitHub artifact. The deployment job depends on successful verification and runs only for a push to `main`.
+5. **Artifact handoff:** Store the verified package as a commit-specific GitHub artifact. The deployment job depends on successful verification and runs only for a push to `main` when the repository variable `VERCEL_DEPLOY_ENABLED=true` is set.
 6. **Database:** When Supabase is explicitly enabled, validate that its URL and project reference match, then apply pending migrations with the pinned Supabase CLI. Missing credentials or failed migrations stop the frontend deployment. Migration privileges are only available to the deployment job.
 7. **CD:** Deploy the downloaded artifact with the pinned Vercel CLI using `--prebuilt --prod`. `vercel.json` disables Vercel's parallel Git deployment path so the Actions checks remain the release gate. The application is not rebuilt during deployment.
 8. **Verification:** Record the returned deployment URL in the Actions summary, then check public HTTPS access, the Phonehaus document, compiled JavaScript/CSS, and sample phone illustrations. A failed check marks the run failed; it does not automatically undo a published release.
@@ -91,6 +91,8 @@ If the project name is unavailable, use another name consistently. Select the sa
 | `VERCEL_ORG_ID`     | `orgId` from the local linking file                        |
 | `VERCEL_PROJECT_ID` | `projectId` from the local linking file                    |
 
+After adding the three Vercel secrets, set the **repository Actions variable** `VERCEL_DEPLOY_ENABLED` to `true`. This is a one-time setup switch: subsequent merges and pushes to `main` deploy automatically. Until then, CI runs and deployment is skipped. Changing a variable alone does not start a run; push the next commit after configuring it.
+
 Keep production publicly accessible for the grader. The live smoke check deliberately does not use an authentication bypass token. Never commit tokens or the linking file.
 
 ### New Supabase project
@@ -114,7 +116,7 @@ Enable row-level security and review migrations before real data is entered. The
 
 ## 5. Release, verification, rollback, and costs
 
-Commit the Phonehaus source, deployment files, lockfile, tests, and this document. Push a feature branch and open a pull request; after its checks pass, merge to `main`. The merge triggers deployment automatically. For the initial repository setup, a push to `main` also triggers the same pipeline.
+Commit the Phonehaus source, deployment files, lockfile, tests, and this document. Push a feature branch and open a pull request; after its checks pass, merge to `main`. Once `VERCEL_DEPLOY_ENABLED=true` and the secrets are configured, the merge triggers deployment automatically. For the initial repository setup, a push to `main` also triggers the same pipeline.
 
 After deployment, verify the production domain in a signed-out browser: homepage, all four brands, direct `/#/product/101` navigation and reload, search, filters, images, cart quantity updates, and bag persistence. If Supabase is enabled, create test accounts, confirm email redirects, edit a profile, and verify two users cannot read each other's profiles or orders. The automated HTTP check does not replace those authenticated browser tests. Confirm that the default production domain is also accessible, not just the deployment-specific URL.
 
@@ -126,4 +128,4 @@ Use free plans for grading where eligible. Check usage dashboards and enable ava
 
 ## Local validation
 
-Node.js 22: production build, application/configuration typechecks, workflow YAML parsing, and all four deployment tests passed. ESLint passed with eight pre-existing warnings and no errors. The tests also verify rejection of missing backend settings and privileged keys in the browser configuration. GitHub-hosted execution, public HTTPS checks, and remote Supabase migrations remain unverified until the accounts and credentials are configured.
+Node.js 22: production build, application/configuration typechecks, workflow YAML parsing, and all four deployment tests passed. ESLint passed with eight pre-existing warnings and no errors. The tests also verify rejection of missing backend settings and privileged keys in the browser configuration. GitHub-hosted CI passed on the previous repository before migration to this repository. Public HTTPS checks and remote Supabase migrations remain unverified until the accounts and credentials are configured.

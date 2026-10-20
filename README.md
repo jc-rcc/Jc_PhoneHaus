@@ -46,6 +46,6 @@ The legacy order flow is a course demo: it accepts client-supplied prices, does 
 
 ## Deployment status
 
-GitHub Actions CI/CD is configured in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). Pull requests run lint, TypeScript, production build, and deployment tests. Successful pushes to `main` deploy the tested artifact to Vercel once the required secrets are configured.
+GitHub Actions CI/CD is configured in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). Pull requests run lint, TypeScript, production build, and deployment tests. Successful pushes to `main` deploy the tested artifact to Vercel once the required secrets are configured and the repository Actions variable `VERCEL_DEPLOY_ENABLED=true` is set.
 
 See [`DEPLOYMENT.md`](DEPLOYMENT.md) for architecture, platform trade-offs, account setup, environment settings, verification, and submission links. The new Vercel and Supabase projects have not been created yet, so no live URL is claimed.

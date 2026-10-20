@@ -56,7 +56,8 @@ jobs:
   deploy:
     name: Deploy verified build to Vercel
     needs: verify
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Enable once the new hosting project and production secrets are ready.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.VERCEL_DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
